@@ -22,16 +22,20 @@ public class FieldEntity implements SuperEntity{
     @Column(columnDefinition = "LONGTEXT")
     private String fieldImage1;
     @Column(columnDefinition = "LONGTEXT")
-    private String FieldImage2;
-    @OneToMany(mappedBy = "field")
+    private String fieldImage2;
+    @OneToMany(mappedBy = "field",fetch = FetchType.EAGER)
     private List<CropEntity> cropList;
-    @ManyToMany(mappedBy = "staffFieldList")
+
+    @ManyToMany
+    @JoinTable(name = "staff_field_details",
+    joinColumns = @JoinColumn(name = "fieldCode"),
+    inverseJoinColumns= @JoinColumn(name = "staffId"))
     private List<StaffEntity> staffList;
+
     @OneToMany(mappedBy = "assignedField")
     private List<EquipmentsEntity> fieldEquipmentsList;
-    @ManyToMany
-    @JoinTable(name = "field_log_details",
-    joinColumns = @JoinColumn(name = "fieldCode"),
-    inverseJoinColumns = @JoinColumn(name = "logCode"))
+
+    @ManyToMany(mappedBy = "logFieldList")
     private List<MonitoringLogEntity> fieldLogList;
+
 }

@@ -9,10 +9,13 @@ import lk.ijse.aad68.crop_management_system.Exception.DataPersistFailedException
 import lk.ijse.aad68.crop_management_system.Service.CropService;
 import lk.ijse.aad68.crop_management_system.Util.AppUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,41 +24,57 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("crop_management/crops")
+@CrossOrigin("*")
 public class CropController {
 
     @Autowired
     private final CropService cropService;
 
+    private static final Logger logger = LoggerFactory.getLogger(CropController.class);
+    @PreAuthorize("hasRole('ROLE_SCIENTIST') or hasRole('ROLE_MANAGER')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> saveCrop(@RequestBody CropDTO crop) {
         if (crop == null){
+            logger.info("Null Request received for save Crop");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }else {
             try {
+                logger.info("Request received to save a new crop: {}", crop);
                 cropService.saveCrop(crop);
+                logger.info("Crop saved successfully: {}", crop);
                 return new ResponseEntity<>(HttpStatus.CREATED);
+            }catch(CropNotFoundException e){
+                logger.error("Failed to save crop: {}", crop, e);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }catch (DataPersistFailedException e){
+                logger.error("Failed to save crop: {}", crop, e);
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }catch (Exception e){
+                logger.error("Internal server error while saving crop: {}", crop, e);
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
     }
 
-    // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "allCrops", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CropDTO> getAllCrops(){
+        logger.info("Fetching All Crops in Database");
         return cropService.getAllCrops();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "/{cropCode}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CropResponse getSelectedCrop(@PathVariable ("cropCode") String cropCode)  {
         if(cropCode.isEmpty() || cropCode == null){
+            logger.error("Invalid Crop Code Received");
             return new CropErrorResponse(1,"Not valid Crop Code");
         }
+        logger.info("Fetching crop with ID: {}", cropCode);
         return cropService.getSelectedCrop(cropCode);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_SCIENTIST')")
     @PatchMapping(value = "/{cropCode}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateCrop(
             @PathVariable ("cropCode") String id,
@@ -75,24 +94,34 @@ public class CropController {
             updatedCrop.setCategory(updateCategory);
             updatedCrop.setCropSeason(updateCropSeason);
             updatedCrop.setField(updateField);
-            cropService.updateCrop(updatedCrop);
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            logger.info("Request received to update crop: {}", updatedCrop);
+
+            cropService.updateCrop(updatedCrop);
+            logger.info("Crop updated successfully: {}", updatedCrop);
+            return new ResponseEntity<>(HttpStatus.OK);
         }catch (CropNotFoundException e){
+            logger.error("Failed to update crop: " ,id ,e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }catch (Exception e){
+            logger.error("Internal server error while updating crop: {}", id, e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_SCIENTIST')")
     @DeleteMapping(value ="/{cropCode}" )
     public ResponseEntity<Void> deleteCrop(@PathVariable ("cropCode") String cropCode) {
         try {
+            logger.info("Request received to delete crop with ID: {}", cropCode);
             cropService.deleteCrop(cropCode);
+            logger.info("Crop deleted successfully: {}", cropCode);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }catch (CropNotFoundException e){
+            logger.error("Failed to delete crop: {}", cropCode,e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }catch (Exception e){
+            logger.error("Unexpected error occurred while deleting crop: {}", cropCode,e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

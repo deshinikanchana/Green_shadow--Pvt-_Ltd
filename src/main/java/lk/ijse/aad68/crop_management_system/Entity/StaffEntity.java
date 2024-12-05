@@ -1,5 +1,6 @@
 package lk.ijse.aad68.crop_management_system.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lk.ijse.aad68.crop_management_system.ENUMS.Designation;
 import lk.ijse.aad68.crop_management_system.ENUMS.Gender;
@@ -37,27 +38,18 @@ public class StaffEntity implements SuperEntity {
     private String email;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @OneToMany(mappedBy = "assignedStaff")
+    @OneToMany(mappedBy = "assignedStaff",fetch = FetchType.EAGER)
     private List<EquipmentsEntity> staffEquipmentList;
-    @ManyToMany
-    @JoinTable(
-            name = "vehicle_staff_details",
-            joinColumns = @JoinColumn(name = "staffId"),
-            inverseJoinColumns = @JoinColumn(name = "vehicleCode")
-    )
+
+    @ManyToMany(mappedBy = "vehicleStaffList",cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<VehicleEntity> staffVehicleList;
-    @ManyToMany
-    @JoinTable(
-            name = "staff_field_details",
-            joinColumns = @JoinColumn(name = "staffId"),
-            inverseJoinColumns = @JoinColumn(name = "fieldCode")
-    )
+
+    @ManyToMany(mappedBy = "staffList",cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<FieldEntity> staffFieldList;
-    @ManyToMany
-    @JoinTable(
-            name = "staff_log_details",
-            joinColumns = @JoinColumn(name = "staffId"),
-            inverseJoinColumns = @JoinColumn(name = "logCode")
-    )
+
+    @ManyToMany(mappedBy = "logStaffList",cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<MonitoringLogEntity> staffLogList;
 }

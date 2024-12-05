@@ -23,38 +23,39 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
+
     private final UserService userService;
     private final JWTConfig jwtConfigFilter;
-    //Config filter chain
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeRequests( req ->
-                        req.requestMatchers("crop_management/Auth/**").permitAll()
-                                .anyRequest()
-                                .authenticated())
+                .authorizeRequests(req -> req
+                        .requestMatchers("/crop_management/Auth/**").permitAll()
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtConfigFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
-    //Password encoder
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    //Auth provider
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider dap =
-                new DaoAuthenticationProvider();
+        DaoAuthenticationProvider dap = new DaoAuthenticationProvider();
         dap.setUserDetailsService(userService.userDetailsService());
         dap.setPasswordEncoder(passwordEncoder());
         return dap;
     }
-    //AuthenticationManager
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 }
+

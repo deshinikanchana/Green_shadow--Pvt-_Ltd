@@ -25,7 +25,7 @@ public class AppUtil {
             String numericPart = currentMaxId.replace("Staff-", "");
             newId = Integer.parseInt(numericPart) + 1;
         }
-        return String.format("OD-%04d", newId);
+        return String.format("Staff-%04d", newId);
     }
 
     public static String createFieldCode(String currentMaxId){
@@ -37,7 +37,7 @@ public class AppUtil {
             String numericPart = currentMaxId.replace("Field-", "");
             newId = Integer.parseInt(numericPart) + 1;
         }
-        return String.format("OD-%04d", newId);
+        return String.format("Field-%04d", newId);
     }
 
     public static String createCropCode(String currentMaxId){
@@ -49,7 +49,7 @@ public class AppUtil {
             String numericPart = currentMaxId.replace("Crop-", "");
             newId = Integer.parseInt(numericPart) + 1;
         }
-        return String.format("OD-%04d", newId);
+        return String.format("Crop-%04d", newId);
     }
 
     public static String createVehicleCode(String currentMaxId){
@@ -61,7 +61,7 @@ public class AppUtil {
             String numericPart = currentMaxId.replace("Vehicle-", "");
             newId = Integer.parseInt(numericPart) + 1;
         }
-        return String.format("OD-%04d", newId);
+        return String.format("Vehicle-%04d", newId);
     }
 
     public static String createEquipmentId(String currentMaxId){
@@ -73,7 +73,7 @@ public class AppUtil {
             String numericPart = currentMaxId.replace("Eq-", "");
             newId = Integer.parseInt(numericPart) + 1;
         }
-        return String.format("OD-%04d", newId);
+        return String.format("Eq-%04d", newId);
     }
 
     public static String createLogCode(String currentMaxId){
@@ -85,6 +85,6 @@ public class AppUtil {
             String numericPart = currentMaxId.replace("Log-", "");
             newId = Integer.parseInt(numericPart) + 1;
         }
-        return String.format("OD-%04d", newId);
+        return String.format("Log-%04d", newId);
     }
 }

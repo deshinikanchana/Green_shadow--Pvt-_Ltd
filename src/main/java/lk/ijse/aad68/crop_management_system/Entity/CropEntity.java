@@ -20,15 +20,11 @@ public class CropEntity implements SuperEntity{
     private String cropImage;
     private String category;
     private String cropSeason;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fieldCode",nullable = false)
     private FieldEntity field;
-    @ManyToMany
-    @JoinTable(
-            name = "crop_log_details",
-            joinColumns = @JoinColumn(name = "cropCode"),
-            inverseJoinColumns = @JoinColumn(name = "logCode")
-    )
+
+    @ManyToMany(mappedBy = "logCropList",cascade = CascadeType.ALL)
     private List<MonitoringLogEntity> cropLogList;
 
 

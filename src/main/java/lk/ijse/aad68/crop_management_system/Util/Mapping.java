@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class Mapping {
@@ -26,7 +27,7 @@ public class Mapping {
     }
 
     public FieldEntity convertFieldDTOToEntity(FieldDTO dto) {
-        return modelMapper.map(dto, FieldEntity.class);
+       return modelMapper.map(dto, FieldEntity.class);
     }
     public FieldDTO convertFieldEntityToDTO(FieldEntity entity) {
         return modelMapper.map(entity, FieldDTO.class);
@@ -95,6 +96,5 @@ public class Mapping {
     public List<VehicleDTO> convertVehicleEntityListToDTOList(List<VehicleEntity> entityList) {
         return modelMapper.map(entityList, new TypeToken<List<VehicleDTO>>() {}.getType());
     }
-
 }
 

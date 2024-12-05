@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,7 +28,7 @@ public class MonitoringLogController {
     @Autowired
     private final MonitoringLogService logService;
 
-
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_SCIENTIST')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> saveLog(@RequestBody MonitoringLogDTO log) {
         if (log == null){
@@ -44,12 +45,13 @@ public class MonitoringLogController {
         }
     }
 
-    // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "allLogs", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<MonitoringLogDTO> getAllLogs(){
         return logService.getAllLogs();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "/{logCode}", produces = MediaType.APPLICATION_JSON_VALUE)
     public MonitoringLogResponse getSelectedLog(@PathVariable ("logCode") String logCode)  {
         if(logCode.isEmpty() || logCode == null){
@@ -58,6 +60,7 @@ public class MonitoringLogController {
         return logService.getSelectedLog(logCode);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_SCIENTIST')")
     @PatchMapping(value = "/{logCode}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateLog(
             @PathVariable ("logCode") String id,
@@ -88,6 +91,7 @@ public class MonitoringLogController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_SCIENTIST')")
     @DeleteMapping(value ="/{logCode}" )
     public ResponseEntity<Void> deleteLog(@PathVariable ("logCode") String logCode) {
         try {

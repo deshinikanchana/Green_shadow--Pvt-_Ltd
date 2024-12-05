@@ -18,6 +18,7 @@ import org.springframework.data.geo.Point;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +31,7 @@ public class EquipmentController {
     @Autowired
     private final EquipmentService equipmentService;
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> saveEquipment(@RequestBody EquipmentDTO equipment) {
         if (equipment == null){
@@ -45,13 +47,13 @@ public class EquipmentController {
             }
         }
     }
-
-    // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "allEquipments", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<EquipmentDTO> getAllEquipments(){
         return equipmentService.getAllEquipments();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "/{equipmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public EquipmentResponse getSelectedEquipment(@PathVariable ("equipmentId") String equipmentId)  {
         if(equipmentId.isEmpty() || equipmentId == null){
@@ -59,7 +61,7 @@ public class EquipmentController {
         }
         return equipmentService.getSelectedEquipment(equipmentId);
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER')")
     @PatchMapping(value = "/{equipmentId}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateEquipment(
             @PathVariable ("equipmentId") String id,
@@ -87,6 +89,7 @@ public class EquipmentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER')")
     @DeleteMapping(value ="/{equipmentId}" )
     public ResponseEntity<Void> deleteEquipment(@PathVariable ("equipmentId") String equipmentId) {
         try {

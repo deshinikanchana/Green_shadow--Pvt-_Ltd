@@ -20,39 +20,43 @@ import java.io.IOException;
 @Configuration
 @RequiredArgsConstructor
 public class JWTConfig extends OncePerRequestFilter {
+
     private final JWTService jwtService;
     private final UserService userService;
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
         String initToken = request.getHeader("Authorization");
         String userEmail;
         String jwtToken;
 
-        //Initial validation
-        if(StringUtils.isEmpty(initToken) || !initToken.startsWith("Bearer ")) {
+        if (StringUtils.isEmpty(initToken) || !initToken.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
-        //Token received
+
         jwtToken = initToken.substring(7);
-        userEmail = jwtService.extractUsername(jwtToken);
+        try {
+            userEmail = jwtService.extractUsername(jwtToken);
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid JWT Token");
+            return;
+        }
 
-
-        if(StringUtils.isNotEmpty(userEmail) &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            var loadedUser =
-                    userService.userDetailsService().loadUserByUsername(userEmail);
-            if(jwtService.isTokenValid(jwtToken, loadedUser)) {
-                SecurityContext emptyContext =
-                        SecurityContextHolder.createEmptyContext();
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(loadedUser, null, loadedUser.getAuthorities());
+        if (StringUtils.isNotEmpty(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
+            var loadedUser = userService.userDetailsService().loadUserByUsername(userEmail);
+            if (loadedUser != null && jwtService.isTokenValid(jwtToken, loadedUser)) {
+                SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        loadedUser, null, loadedUser.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetails(request));
                 emptyContext.setAuthentication(authToken);
                 SecurityContextHolder.setContext(emptyContext);
             }
         }
-        filterChain.doFilter(request,response);
+
+        filterChain.doFilter(request, response);
     }
 }

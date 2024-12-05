@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -43,12 +44,13 @@ public class UserController {
         }
     }
 
-    // @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "allUsers", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserDTO> getAllUsers(){
         return userService.getAllUsers();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponse getSelectedUser(@PathVariable ("email") String email)  {
         if(email.isEmpty() || email == null){
@@ -57,6 +59,7 @@ public class UserController {
         return userService.getSelectedUser(email);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @PatchMapping(value = "/{email}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateUser(
             @PathVariable ("email") String email,
@@ -78,6 +81,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @DeleteMapping(value ="/{email}" )
     public ResponseEntity<Void> deleteUser(@PathVariable ("email") String email) {
         try {

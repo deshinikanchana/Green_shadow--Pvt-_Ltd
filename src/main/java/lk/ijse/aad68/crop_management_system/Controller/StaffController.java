@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class StaffController {
     @Autowired
     private final StaffService staffService;
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> saveMember(@RequestBody StaffDTO member) {
         if (member == null){
@@ -36,6 +38,7 @@ public class StaffController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMember(@PathVariable("id") String staffId) {
         try {
@@ -48,18 +51,21 @@ public class StaffController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
     public StaffMemberResponse getSelectedMember(@PathVariable ("id") String staffId){
         return staffService.getSelectedMember(staffId);
     }
-//    @PreAuthorize("hasRole('ADMIN')")
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<StaffDTO> getAllMembers(){
         return staffService.getAllMembers();
     }
 
-    @PatchMapping(value = "/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> updateUser(
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER')")
+    @PutMapping(value = "/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> updateMember(
             @PathVariable ("id") String id,
             @RequestPart("updateFirstName") String updateFirstName,
             @RequestPart ("updateLastName") String updateLastName,

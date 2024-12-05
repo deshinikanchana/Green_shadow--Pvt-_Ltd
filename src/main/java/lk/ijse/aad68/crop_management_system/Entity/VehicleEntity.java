@@ -22,6 +22,11 @@ public class VehicleEntity implements SuperEntity {
     @Enumerated(EnumType.STRING)
     private Availability status;
     private String remarks;
-    @ManyToMany(mappedBy = "staffVehicleList")
+    @ManyToMany
+    @JoinTable(
+            name = "vehicle_staff_details",
+            joinColumns = @JoinColumn(name = "vehicleCode"),
+            inverseJoinColumns = @JoinColumn(name = "staffId")
+    )
     private List<StaffEntity> vehicleStaffList;
 }
