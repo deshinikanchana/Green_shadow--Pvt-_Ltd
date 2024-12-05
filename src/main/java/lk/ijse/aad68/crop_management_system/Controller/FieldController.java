@@ -30,12 +30,12 @@ public class FieldController {
 
     private static final Logger logger = LoggerFactory.getLogger(FieldController.class);
     @PreAuthorize("hasRole('ROLE_SCIENTIST') or hasRole('ROLE_MANAGER')")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> saveField(@RequestPart("fieldCode") String fieldCode,
-                                          @RequestPart("fieldName") String fieldName,
-                                          @RequestPart("fieldLocation") Point fieldLocation,
-                                          @RequestPart("fieldSize") Double fieldSize,
-                                          @RequestPart("staffList") List<String> staffList,
+    @PostMapping
+    public ResponseEntity<Void> saveField(@RequestParam("fieldCode") String fieldCode,
+                                          @RequestParam("fieldName") String fieldName,
+                                          @RequestParam("fieldLocation") Point fieldLocation,
+                                          @RequestParam("fieldSize") Double fieldSize,
+                                          @RequestParam("staffList") List<String> staffList,
                                           @RequestPart("fieldImage1") MultipartFile fieldImage1,
                                           @RequestPart("fieldImage2") MultipartFile fieldImage2
 
@@ -50,7 +50,7 @@ public class FieldController {
         field.setFieldImage1(AppUtil.toBase64Pic(fieldImage1));
         field.setFieldImage2(AppUtil.toBase64Pic(fieldImage2));
 
-        field.setFieldLocation(new Point(field.getFieldLocation().getX(), field.getFieldLocation().getY()));
+        field.setFieldLocation(new Point(fieldLocation.getX(), fieldLocation.getY()));
         logger.info("Request received to save a new field: {}", field);
         try {
             fieldService.saveField(field,staffList);

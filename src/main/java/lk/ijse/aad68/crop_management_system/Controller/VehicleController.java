@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -26,18 +27,15 @@ public class VehicleController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> saveVehicle(@RequestParam ("vehicleCode") String vehicleCode,
-                                            @RequestParam("licencePN") String licencePN,
-                                            @RequestParam("category") String category,
-                                            @RequestParam("fuelType") String fuelType,
-                                            @RequestParam("status") String status,
-                                            @RequestParam("remarks") String remarks,
-                                            @RequestParam("staffList") List<String> staffList) {
-        VehicleDTO vehicle = new VehicleDTO(vehicleCode,licencePN,category,fuelType,status,remarks);
+    public ResponseEntity<Void> saveVehicle(@RequestBody VehicleDTO vehicle){
         if (vehicle == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
             try {
+                List<String> staffList = new ArrayList<>();
+                for(String id: vehicle.getVehicleStaffList()){
+                    staffList.add(id);
+                }
                 vehicleService.saveVehicle(vehicle,staffList);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             } catch (DataPersistFailedException e) {

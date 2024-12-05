@@ -32,13 +32,13 @@ public class MonitoringLogController {
 
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_SCIENTIST')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> saveLog(@RequestPart ("logCode") String logCode,
-                                        @RequestPart("logDate") Date logDate,
-                                        @RequestPart("observation")String observation,
+    public ResponseEntity<Void> saveLog(@RequestParam ("logCode") String logCode,
+                                        @RequestParam("logDate") Date logDate,
+                                        @RequestParam("observation")String observation,
                                         @RequestPart("observedImage") MultipartFile observedImage,
-                                        @RequestPart("fieldIdList") List<String> fieldIdList,
-                                        @RequestPart("cropIdList") List<String> cropIdList,
-                                        @RequestPart("staffIdList") List<String> staffIdList) {
+                                        @RequestParam("fieldIdList") List<String> fieldIdList,
+                                        @RequestParam("cropIdList") List<String> cropIdList,
+                                        @RequestParam("staffIdList") List<String> staffIdList) {
         MonitoringLogDTO log = new MonitoringLogDTO(logCode,logDate,observation,AppUtil.toBase64Pic(observedImage));
 
         if (log == null){

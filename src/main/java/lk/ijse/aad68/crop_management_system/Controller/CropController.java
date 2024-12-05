@@ -32,13 +32,13 @@ public class CropController {
     private static final Logger logger = LoggerFactory.getLogger(CropController.class);
     @PreAuthorize("hasRole('ROLE_SCIENTIST') or hasRole('ROLE_MANAGER')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> saveCrop(@RequestPart("cropCode") String cropCode,
-                                         @RequestPart("commonName") String commonName,
-                                         @RequestPart("scientificName")String scientificName,
+    public ResponseEntity<Void> saveCrop(@RequestParam("cropCode") String cropCode,
+                                         @RequestParam("commonName") String commonName,
+                                         @RequestParam("scientificName")String scientificName,
                                          @RequestPart("cropImage") MultipartFile cropImage,
-                                         @RequestPart("category") String category,
-                                         @RequestPart("cropSeason") String cropSeason,
-                                         @RequestPart("fieldCode") String fieldCode) {
+                                         @RequestParam("category") String category,
+                                         @RequestParam("cropSeason") String cropSeason,
+                                         @RequestParam("fieldCode") String fieldCode) {
 
 
         CropDTO saveCrop = new CropDTO();
