@@ -19,23 +19,33 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.Date;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("crop_management/monitoring_logs")
+@CrossOrigin("*")
 public class MonitoringLogController {
     @Autowired
     private final MonitoringLogService logService;
 
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_SCIENTIST')")
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> saveLog(@RequestBody MonitoringLogDTO log) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> saveLog(@RequestPart ("logCode") String logCode,
+                                        @RequestPart("logDate") Date logDate,
+                                        @RequestPart("observation")String observation,
+                                        @RequestPart("observedImage") MultipartFile observedImage,
+                                        @RequestPart("fieldIdList") List<String> fieldIdList,
+                                        @RequestPart("cropIdList") List<String> cropIdList,
+                                        @RequestPart("staffIdList") List<String> staffIdList) {
+        MonitoringLogDTO log = new MonitoringLogDTO(logCode,logDate,observation,AppUtil.toBase64Pic(observedImage));
+
         if (log == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }else {
             try {
-                logService.saveLog(log);
+                logService.saveLog(log,fieldIdList,cropIdList,staffIdList);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             }catch (DataPersistFailedException e){
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -61,27 +71,25 @@ public class MonitoringLogController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_SCIENTIST')")
-    @PatchMapping(value = "/{logCode}",produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/{logCode}",produces = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateLog(
-            @PathVariable ("logCode") String id,
-            @RequestPart("updateObservation") String updateObservation,
-            @RequestPart ("updateImage") MultipartFile updateImage,
-            @RequestPart ("updateFieldList") List<FieldDTO> updateFieldList,
-            @RequestPart ("updateCropList") List<CropDTO> updateCropList,
-            @RequestPart ("updateStaffList") List<StaffDTO> updateStaffList
+            @PathVariable ("logCode") String logCode,
+            @RequestPart("updatedobservation")String updatedobservation,
+            @RequestPart("updatedobservedImage") MultipartFile updatedobservedImage,
+            @RequestPart("updatedFieldIdList") List<String> updatedFieldIdList,
+            @RequestPart("updatedCropIdList") List<String> updatedCropIdList,
+            @RequestPart("updatedStaffIdList") List<String> updatedStaffIdList
 
     ){
         try {
-            String updateBase64Img = AppUtil.toBase64Pic(updateImage);
+            String updateBase64Img = AppUtil.toBase64Pic(updatedobservedImage);
             var updatedLog = new MonitoringLogDTO();
-            updatedLog.setLogCode(id);
-            updatedLog.setObservation(updateObservation);
+            updatedLog.setLogCode(logCode);
+            updatedLog.setObservation(updatedobservation);
             updatedLog.setObservedImage(updateBase64Img);
-            updatedLog.setLogFieldList(updateFieldList);
-            updatedLog.setLogCropList(updateCropList);
-            updatedLog.setLogStaffList(updateStaffList);
 
-            logService.updateLog(updatedLog);
+
+            logService.updateLog(updatedLog, updatedFieldIdList,updatedCropIdList,updatedStaffIdList);
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }catch (MonitoringLogNotFoundException e){

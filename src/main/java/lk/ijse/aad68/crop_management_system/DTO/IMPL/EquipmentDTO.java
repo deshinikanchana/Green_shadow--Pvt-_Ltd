@@ -13,6 +13,6 @@ public class EquipmentDTO implements SuperDTO, EquipmentResponse {
     private String equipmentName;
     private String type;
     private String status;
-    private StaffDTO assignedStaff;
-    private FieldDTO assignedField;
+    private String assignedStaff;
+    private String assignedField;
 }

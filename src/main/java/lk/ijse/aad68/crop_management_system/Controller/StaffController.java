@@ -17,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("crop_management/staff")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class StaffController {
     @Autowired
     private final StaffService staffService;
@@ -66,35 +67,10 @@ public class StaffController {
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER')")
     @PutMapping(value = "/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateMember(
-            @PathVariable ("id") String id,
-            @RequestPart("updateFirstName") String updateFirstName,
-            @RequestPart ("updateLastName") String updateLastName,
-            @RequestPart ("updateDesignation") String updateDesignation,
-            @RequestPart ("updateAddressLine1") String updateAddressLine1,
-            @RequestPart ("updateAddressLine2") String updateAddressLine2,
-            @RequestPart ("updateAddressLine3") String updateAddressLine3,
-            @RequestPart ("updateAddressLine4") String updateAddressLine4,
-            @RequestPart ("updateAddressLine5") String updateAddressLine5,
-            @RequestPart ("updateContactNo") String updateContactNo,
-            @RequestPart ("updateEmail") String updateEmail,
-            @RequestPart ("updateRole") String updateRole
-    ){
+            @PathVariable ("id") String id,@RequestBody StaffDTO member){
         try {
-            var updateMember = new StaffDTO();
-            updateMember.setStaffId(id);
-            updateMember.setFirstName(updateFirstName);
-            updateMember.setLastName(updateLastName);
-            updateMember.setDesignation(updateDesignation);
-            updateMember.setAddressLine1(updateAddressLine1);
-            updateMember.setAddressLine2(updateAddressLine2);
-            updateMember.setAddressLine3(updateAddressLine3);
-            updateMember.setAddressLine4(updateAddressLine4);
-            updateMember.setAddressLine5(updateAddressLine5);
-            updateMember.setContactNo(updateContactNo);
-            updateMember.setEmail(updateEmail);
-            updateMember.setRole(updateRole);
-
-            staffService.updateMember(updateMember);
+            member.setStaffId(id);
+            staffService.updateMember(member);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }catch (StaffMemberNotFoundException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

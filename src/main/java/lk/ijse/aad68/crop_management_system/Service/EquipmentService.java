@@ -6,8 +6,8 @@ import lk.ijse.aad68.crop_management_system.DTO.IMPL.EquipmentDTO;
 import java.util.List;
 
 public interface EquipmentService {
-    void saveEquipment(EquipmentDTO dto);
-    void updateEquipment(EquipmentDTO dto);
+    void saveEquipment(EquipmentDTO dto,String staffId,String fieldCode);
+    void updateEquipment(EquipmentDTO dto,String staffId,String fieldCode);
     void deleteEquipment(String id);
     EquipmentResponse getSelectedEquipment(String id);
     List<EquipmentDTO> getAllEquipments();

@@ -6,8 +6,8 @@ import lk.ijse.aad68.crop_management_system.DTO.IMPL.FieldDTO;
 import java.util.List;
 
 public interface FieldService {
-    void saveField(FieldDTO dto);
-    void updateField(FieldDTO dto);
+    void saveField(FieldDTO dto,List<String> staff);
+    void updateField(List<String> updatedStaffIds,FieldDTO dto);
     void deleteField(String id);
     FieldResponse getSelectedField(String id);
     List<FieldDTO> getAllFields();

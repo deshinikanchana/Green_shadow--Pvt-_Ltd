@@ -3,7 +3,6 @@ package lk.ijse.aad68.crop_management_system.Controller;
 import lk.ijse.aad68.crop_management_system.CustomOBJ.CropErrorResponse;
 import lk.ijse.aad68.crop_management_system.CustomOBJ.CropResponse;
 import lk.ijse.aad68.crop_management_system.DTO.IMPL.CropDTO;
-import lk.ijse.aad68.crop_management_system.DTO.IMPL.FieldDTO;
 import lk.ijse.aad68.crop_management_system.Exception.CropNotFoundException;
 import lk.ijse.aad68.crop_management_system.Exception.DataPersistFailedException;
 import lk.ijse.aad68.crop_management_system.Service.CropService;
@@ -32,25 +31,41 @@ public class CropController {
 
     private static final Logger logger = LoggerFactory.getLogger(CropController.class);
     @PreAuthorize("hasRole('ROLE_SCIENTIST') or hasRole('ROLE_MANAGER')")
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> saveCrop(@RequestBody CropDTO crop) {
-        if (crop == null){
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> saveCrop(@RequestPart("cropCode") String cropCode,
+                                         @RequestPart("commonName") String commonName,
+                                         @RequestPart("scientificName")String scientificName,
+                                         @RequestPart("cropImage") MultipartFile cropImage,
+                                         @RequestPart("category") String category,
+                                         @RequestPart("cropSeason") String cropSeason,
+                                         @RequestPart("fieldCode") String fieldCode) {
+
+
+        CropDTO saveCrop = new CropDTO();
+        saveCrop.setCropCode(cropCode);
+        saveCrop.setCommonName(commonName);
+        saveCrop.setScientificName(scientificName);
+        saveCrop.setCropImage(AppUtil.toBase64Pic(cropImage));
+        saveCrop.setCropSeason(cropSeason);
+        saveCrop.setCategory(category);
+
+        if (saveCrop == null){
             logger.info("Null Request received for save Crop");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }else {
             try {
-                logger.info("Request received to save a new crop: {}", crop);
-                cropService.saveCrop(crop);
-                logger.info("Crop saved successfully: {}", crop);
+                logger.info("Request received to save a new crop: {}", saveCrop);
+                cropService.saveCrop(saveCrop, fieldCode);
+                logger.info("Crop saved successfully: {}", saveCrop);
                 return new ResponseEntity<>(HttpStatus.CREATED);
-            }catch(CropNotFoundException e){
-                logger.error("Failed to save crop: {}", crop, e);
+            } catch (CropNotFoundException e){
+                logger.error("Failed to save crop: {}", saveCrop, e);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }catch (DataPersistFailedException e){
-                logger.error("Failed to save crop: {}", crop, e);
+            } catch (DataPersistFailedException e) {
+                logger.error("Failed to save crop: {}", saveCrop, e);
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }catch (Exception e){
-                logger.error("Internal server error while saving crop: {}", crop, e);
+            } catch (Exception e) {
+                logger.error("Internal server error while saving crop: {}", saveCrop, e);
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
@@ -75,7 +90,7 @@ public class CropController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_SCIENTIST')")
-    @PatchMapping(value = "/{cropCode}",produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/{cropCode}",produces = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateCrop(
             @PathVariable ("cropCode") String id,
             @RequestPart("updateCommonName") String updateCommonName,
@@ -83,21 +98,22 @@ public class CropController {
             @RequestPart ("updateCategory") String updateCategory,
             @RequestPart ("updateCropSeason") String updateCropSeason,
             @RequestPart ("updateCropImage") MultipartFile updateCropImage,
-            @RequestPart("updateField") FieldDTO updateField
+            @RequestPart("updateField") String updateFieldCode
     ){
         try {
             String updateBase64CropImg = AppUtil.toBase64Pic(updateCropImage);
             var updatedCrop = new CropDTO();
+            updatedCrop.setCropCode(id);
             updatedCrop.setCommonName(updateCommonName);
             updatedCrop.setScientificName(updateScientificName);
             updatedCrop.setCropImage(updateBase64CropImg);
             updatedCrop.setCategory(updateCategory);
             updatedCrop.setCropSeason(updateCropSeason);
-            updatedCrop.setField(updateField);
+
 
             logger.info("Request received to update crop: {}", updatedCrop);
 
-            cropService.updateCrop(updatedCrop);
+            cropService.updateCrop(updatedCrop,updateFieldCode);
             logger.info("Crop updated successfully: {}", updatedCrop);
             return new ResponseEntity<>(HttpStatus.OK);
         }catch (CropNotFoundException e){

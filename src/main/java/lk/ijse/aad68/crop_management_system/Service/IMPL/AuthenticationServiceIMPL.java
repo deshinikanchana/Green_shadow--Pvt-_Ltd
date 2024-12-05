@@ -19,7 +19,6 @@ public class AuthenticationServiceIMPL implements AuthenticationService {
     private final UserDAO userDao;
     private final JWTService jwtService;
     private final Mapping mapping;
-    //utils
     private final AuthenticationManager authenticationManager;
 
     @Override

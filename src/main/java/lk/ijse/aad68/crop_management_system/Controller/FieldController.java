@@ -23,19 +23,37 @@ import java.util.List;
 @RestController
 @RequestMapping("crop_management/fields")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class FieldController {
     @Autowired
     private final FieldService fieldService;
 
     private static final Logger logger = LoggerFactory.getLogger(FieldController.class);
     @PreAuthorize("hasRole('ROLE_SCIENTIST') or hasRole('ROLE_MANAGER')")
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> saveField(@RequestBody FieldDTO field){
-        logger.info("y"+field.getFieldLocation().getY() +"x"+field.getFieldLocation().getX());
-        field.setFieldLocation(new org.springframework.data.geo.Point(field.getFieldLocation().getX(), field.getFieldLocation().getY()));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> saveField(@RequestPart("fieldCode") String fieldCode,
+                                          @RequestPart("fieldName") String fieldName,
+                                          @RequestPart("fieldLocation") Point fieldLocation,
+                                          @RequestPart("fieldSize") Double fieldSize,
+                                          @RequestPart("staffList") List<String> staffList,
+                                          @RequestPart("fieldImage1") MultipartFile fieldImage1,
+                                          @RequestPart("fieldImage2") MultipartFile fieldImage2
+
+
+    ){
+        logger.info("y"+fieldLocation.getY() +"x"+fieldLocation.getX());
+
+        FieldDTO field = new FieldDTO();
+        field.setFieldCode(fieldCode);
+        field.setFieldName(fieldName);
+        field.setFieldSize(fieldSize);
+        field.setFieldImage1(AppUtil.toBase64Pic(fieldImage1));
+        field.setFieldImage2(AppUtil.toBase64Pic(fieldImage2));
+
+        field.setFieldLocation(new Point(field.getFieldLocation().getX(), field.getFieldLocation().getY()));
         logger.info("Request received to save a new field: {}", field);
         try {
-            fieldService.saveField(field);
+            fieldService.saveField(field,staffList);
             logger.info("Field saved successfully: {}", field);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (DataPersistFailedException e) {
@@ -54,7 +72,7 @@ public class FieldController {
             @RequestPart("updateFieldName") String updateFieldName,
             @RequestPart("updateLocation") Point updateLocation,
             @RequestPart("updateSize") double updateSize,
-            @RequestPart("updateStaffList") List<StaffDTO> updateStaffList,
+            @RequestPart("updateStaffList") List<String> updateStaffList,
             @RequestPart("updateImage1") MultipartFile updateImage1,
             @RequestPart("updateImage2") MultipartFile updateImage2
 
@@ -64,12 +82,11 @@ public class FieldController {
         fieldDTO.setFieldName(updateFieldName);
         fieldDTO.setFieldLocation(new Point(updateLocation.getX(), updateLocation.getY()));
         fieldDTO.setFieldSize(updateSize);
-        fieldDTO.setStaffList(updateStaffList);
         fieldDTO.setFieldImage1(AppUtil.toBase64Pic(updateImage1));
         fieldDTO.setFieldImage2(AppUtil.toBase64Pic(updateImage2));
         logger.info("Request received to update field with staff IDs {}: {}", updateStaffList, fieldDTO);
         try {
-            fieldService.updateField(fieldDTO);
+            fieldService.updateField(updateStaffList,fieldDTO);
             logger.info("Field updated successfully: {}", fieldDTO);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (FieldNotFoundException e) {

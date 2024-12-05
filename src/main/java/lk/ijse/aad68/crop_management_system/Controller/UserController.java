@@ -19,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("crop_management/users")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class UserController {
     @Autowired
     private final PasswordEncoder passwordEncoder;
@@ -44,7 +45,7 @@ public class UserController {
         }
     }
 
-    //@PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER','ROLE_SCIENTIST')")
     @GetMapping(value = "allUsers", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserDTO> getAllUsers(){
         return userService.getAllUsers();

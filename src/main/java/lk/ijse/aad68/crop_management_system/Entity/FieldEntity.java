@@ -1,5 +1,7 @@
 package lk.ijse.aad68.crop_management_system.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +32,7 @@ public class FieldEntity implements SuperEntity{
     @JoinTable(name = "staff_field_details",
     joinColumns = @JoinColumn(name = "fieldCode"),
     inverseJoinColumns= @JoinColumn(name = "staffId"))
+    @JsonManagedReference
     private List<StaffEntity> staffList;
 
     @OneToMany(mappedBy = "assignedField")

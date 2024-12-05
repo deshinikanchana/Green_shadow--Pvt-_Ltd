@@ -27,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("crop_management/equipments")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class EquipmentController {
     @Autowired
     private final EquipmentService equipmentService;
@@ -38,7 +39,9 @@ public class EquipmentController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }else {
             try {
-                equipmentService.saveEquipment(equipment);
+                String staffId = equipment.getAssignedStaff();
+                String fieldCode = equipment.getAssignedField();
+                equipmentService.saveEquipment(equipment,staffId,fieldCode);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             }catch (DataPersistFailedException e){
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -68,8 +71,8 @@ public class EquipmentController {
             @RequestPart("updateName") String updateName,
             @RequestPart ("updateStatus") String updateStatus,
             @RequestPart ("updateType") String updateType,
-            @RequestPart ("updateStaff") StaffDTO updateStaff,
-            @RequestPart ("updateField") FieldDTO updateField
+            @RequestPart ("updateStaff") String updateStaff,
+            @RequestPart ("updateField") String updateField
 
     ){
         try {
@@ -77,10 +80,8 @@ public class EquipmentController {
             updatedEquipment.setEquipmentName(updateName);
             updatedEquipment.setType(updateType);
             updatedEquipment.setStatus(updateStatus);
-            updatedEquipment.setAssignedStaff(updateStaff);
-            updatedEquipment.setAssignedField(updateField);
 
-            equipmentService.updateEquipment(updatedEquipment);
+            equipmentService.updateEquipment(updatedEquipment,updateStaff,updateField);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }catch (FieldNotFoundException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

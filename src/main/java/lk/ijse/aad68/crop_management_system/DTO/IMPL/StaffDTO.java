@@ -27,9 +27,9 @@ public class StaffDTO implements SuperDTO , StaffMemberResponse {
     private String contactNo;
     private String email;
     private String role;
-    private List<EquipmentDTO> staffEquipmentList;
-    private List<VehicleDTO> staffVehicleList;
-    private List<FieldDTO> staffFieldList;
-    private List<MonitoringLogDTO> staffLogList;
+    //private List<String> staffEquipmentList;
+    //private List<String> staffVehicleList;
+    //private List<String> staffFieldList;
+    //private List<String> staffLogList;
 }
 

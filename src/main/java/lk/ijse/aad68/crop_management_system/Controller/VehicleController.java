@@ -19,18 +19,26 @@ import java.util.List;
 @RestController
 @RequestMapping("crop_management/vehicles")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class VehicleController {
 
     private final VehicleService vehicleService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMINISTRATIVE','ROLE_MANAGER')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> saveVehicle(@RequestBody VehicleDTO vehicle) {
+    public ResponseEntity<Void> saveVehicle(@RequestParam ("vehicleCode") String vehicleCode,
+                                            @RequestParam("licencePN") String licencePN,
+                                            @RequestParam("category") String category,
+                                            @RequestParam("fuelType") String fuelType,
+                                            @RequestParam("status") String status,
+                                            @RequestParam("remarks") String remarks,
+                                            @RequestParam("staffList") List<String> staffList) {
+        VehicleDTO vehicle = new VehicleDTO(vehicleCode,licencePN,category,fuelType,status,remarks);
         if (vehicle == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
             try {
-                vehicleService.saveVehicle(vehicle);
+                vehicleService.saveVehicle(vehicle,staffList);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             } catch (DataPersistFailedException e) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -59,18 +67,17 @@ public class VehicleController {
     @PatchMapping(value = "/{vehicleCode}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateVehicle(
             @PathVariable ("vehicleCode") String id,
-            @RequestPart ("updatedStatus") String updatedStatus,
-            @RequestPart ("updateRemarks") String updateRemarks,
-            @RequestPart ("updateStaffList") List<StaffDTO> updateStaffList
+            @RequestParam ("updatedStatus") String updatedStatus,
+            @RequestParam ("updateRemarks") String updateRemarks,
+            @RequestParam ("updateStaffList") List<String> updateStaffList
     ){
         try {
             var updatedVehicle = new VehicleDTO();
             updatedVehicle.setVehicleCode(id);
             updatedVehicle.setStatus(updatedStatus);
             updatedVehicle.setRemarks(updateRemarks);
-            updatedVehicle.setVehicleStaffList(updateStaffList);
 
-            vehicleService.updateVehicle(updatedVehicle);
+            vehicleService.updateVehicle(updatedVehicle,updateStaffList);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }catch (VehicleNotFoundException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -1,5 +1,6 @@
 package lk.ijse.aad68.crop_management_system.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lk.ijse.aad68.crop_management_system.ENUMS.Designation;
@@ -46,7 +47,7 @@ public class StaffEntity implements SuperEntity {
     private List<VehicleEntity> staffVehicleList;
 
     @ManyToMany(mappedBy = "staffList",cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonBackReference
     private List<FieldEntity> staffFieldList;
 
     @ManyToMany(mappedBy = "logStaffList",cascade = CascadeType.ALL)
